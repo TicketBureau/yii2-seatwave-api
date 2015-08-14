@@ -1,0 +1,13 @@
+{
+    "name": "ticketbureau/yii2-seatwave-api",
+    "description": "Yii 2 Seatwave API extension. http://www.yiiframework.com",
+    "require": {
+        "linslin/yii2-curl": "^1.0"
+    },
+    "authors": [
+        {
+            "name": "Enric Bisbe",
+            "email": "enric.bisbe@ticketbureau.info"
+        }
+    ]
+}
