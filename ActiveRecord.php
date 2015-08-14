@@ -1,9 +1,5 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
 
 namespace ticketbureau\seatwave;
 
@@ -11,34 +7,11 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\BaseActiveRecord;
 
-/**
- * ActiveRecord is the base class for classes representing relational data in terms of objects.
- *
- * This class implements the ActiveRecord pattern for the [redis](http://redis.io/) key-value store.
- *
- * For defining a record a subclass should at least implement the [[attributes()]] method to define
- * attributes. A primary key can be defined via [[primaryKey()]] which defaults to `id` if not specified.
- *
- * The following is an example model called `Customer`:
- *
- * ```php
- * class Customer extends \yii\redis\ActiveRecord
- * {
- *     public function attributes()
- *     {
- *         return ['id', 'name', 'address', 'registration_date'];
- *     }
- * }
- * ```
- *
- * @author Carsten Brandt <mail@cebe.cc>
- * @since 2.0
- */
 class ActiveRecord extends BaseActiveRecord
 {
     /**
-     * Returns the database connection used by this AR class.
-     * By default, the "redis" application component is used as the database connection.
+     * Returns the database connection used.
+     * By default, the "api" application component is used as the database connection.
      * You may override this method if you want to use a different database connection.
      * @return Connection the database connection used by this AR class.
      */
