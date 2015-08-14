@@ -1,13 +1,24 @@
 {
-    "name": "ticketbureau/yii2-seatwave-api",
-    "description": "Yii 2 Seatwave API extension. http://www.yiiframework.com",
-    "require": {
-        "linslin/yii2-curl": "^1.0"
-    },
-    "authors": [
-        {
-            "name": "Enric Bisbe",
-            "email": "enric.bisbe@ticketbureau.info"
-        }
-    ]
+  "name": "ticketbureau/yii2-seatwave-api",
+  "description": "Yii 2 Seatwave API extension. http://www.yiiframework.com",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "extension"
+  ],
+  "license": "GPL-3.0+",
+  "require": {
+    "linslin/yii2-curl": "*"
+  },
+  "authors": [
+    {
+      "name": "Enric Bisbe",
+      "email": "enric.bisbe@ticketbureau.info"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ticketbureau\\seatwave\\": ""
+    }
+  }
 }
