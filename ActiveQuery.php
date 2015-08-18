@@ -60,7 +60,17 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        return $db->executeCommand('ALL', $modelClass::tableName(), $this->prepareQueryString());
+        $source = $modelClass::tableName();
+
+        if(!empty($this->link)) {
+            $pre = '';
+            foreach($this->link as $key => $link) {
+                $pre .= "{$key}/{$link}";
+            }
+            $source = $pre.'/'.$source;
+        }
+
+        return $db->executeCommand('ALL', $source, $this->prepareQueryString());
     }
 
     /**
@@ -122,8 +132,17 @@ class ActiveQuery extends Component implements ActiveQueryInterface
         /* @var $modelClass ActiveRecord */
         $modelClass = $this->modelClass;
 
+        $base_params = [];
+        if(!empty($this->limit)) {
+            $base_params['pgsize'] = $this->limit;
+        }
+
+        if(!empty($this->offset)) {
+            $base_params['pgnumber'] = $this->offset + 1;
+        }
+
         return array_merge(is_array($this->where) ? $this->where : [],
-            ['pgsize' => $this->limit, 'pgnumber' => $this->offset + 1],
+            $base_params,
             $modelClass::additionalParams());
     }
 }
