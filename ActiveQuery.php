@@ -60,17 +60,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        $source = $modelClass::tableName();
-
-        if(!empty($this->link)) {
-            $pre = '';
-            foreach($this->link as $key => $link) {
-                $pre .= "{$key}/{$link}";
-            }
-            $source = $pre.'/'.$source;
-        }
-
-        return $db->executeCommand('ALL', $source, $this->prepareQueryString());
+        return $db->executeCommand('ALL', $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -91,7 +81,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        return $db->executeCommand('ONE', $modelClass::tableName(), $this->prepareQueryString());
+        return $db->executeCommand('ONE', $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -111,7 +101,8 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
         $this->limit = 1;
-        return $db->executeCommand('COUNT', $modelClass::tableName(), $this->prepareQueryString());
+
+        return $db->executeCommand('COUNT', $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -127,22 +118,53 @@ class ActiveQuery extends Component implements ActiveQueryInterface
         return $this->one($db) !== null;
     }
 
+    /**
+     * Gets the source and returns a string. If a relation is defined adjusts the source in order
+     * to match that url.
+     *
+     * Base source name is defined by the table name in the model
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        /* @var $modelClass ActiveRecord */
+        $modelClass = $this->modelClass;
+        $source = $modelClass::tableName();
+
+        if (!empty($this->link)) {
+            $pre = '';
+            foreach ($this->link as $key => $link) {
+                $pre .= "{$key}/{$link}";
+            }
+            $source = $pre . '/' . $source;
+        }
+
+        return $source;
+    }
+
+    /**
+     * Gets all parameters and returns an array. You can set up predifined parameters in the model.
+     *
+     * @return array
+     */
     public function prepareQueryString()
     {
         /* @var $modelClass ActiveRecord */
         $modelClass = $this->modelClass;
 
         $base_params = [];
-        if(!empty($this->limit)) {
+        if (!empty($this->limit)) {
             $base_params['pgsize'] = $this->limit;
         }
 
-        if(!empty($this->offset)) {
+        if (!empty($this->offset)) {
             $base_params['pgnumber'] = $this->offset + 1;
         }
 
-        return array_merge(is_array($this->where) ? $this->where : [],
-            $base_params,
-            $modelClass::additionalParams());
+        return array_merge(
+            $modelClass::additionalParams(),
+            $base_params
+        );
     }
 }
