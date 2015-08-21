@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Component;
 use linslin\yii2\curl;
 use yii\db\Exception;
+use yii\helpers\ArrayHelper;
 
 class Connection extends Component {
 
@@ -17,52 +18,59 @@ class Connection extends Component {
     /** @var string TODO implement AUTH authentication */
     public $password = '';
 
-    public $method = 'GET';
+    public $count_path = 'Paging.TotalResultCount';
 
     protected $_curl = null;
 
-    public function executeCommand($name, $source, $params = []){
+
+
+    public function executeCommand($commandType,$entity, $source, $params = [], $protocol = 'http://'){
 
         if(!class_exists('\\linslin\\yii2\\curl\\Curl')) {
             throw new Exception('linslin\yii2\curl\Curl is needed.');
         }
 
         $curl = new curl\Curl();
-        $url = $this->endpoint.strtolower($source);
+        $url = $protocol.$this->endpoint.strtolower($source);
 
         Yii::trace('Url set to:' . $url, __METHOD__);
 
-        if($this->method == 'GET') {
-            $queryString = [];
-            foreach($params as $key => $param) {
-                if(!empty($param)) {
-                    $queryString[] = "$key=$param";
-                }
+        $queryString = [];
+        foreach($params['GET'] as $key => $param) {
+            if(!empty($param)) {
+                $queryString[] = "$key=$param";
             }
-            $queryString = implode('&', $queryString);
-            $url .= '?'.$queryString;
-            $raw_response = $curl->get($url);
-        } else {
+        }
+        $queryString = implode('&', $queryString);
+        $url .= '?'.$queryString;
+
+        if(!empty($params['POST'])) {
             $raw_response = $curl->setOption(
                 CURLOPT_POSTFIELDS,
-                http_build_query($params))
+                http_build_query($params['POST']))
                 ->post($url);
+        } else {
+            $raw_response = $curl->get($url);
         }
 
         if($raw_response !== false) {
             $response = json_decode($raw_response, true);
-            switch($name) {
+
+            if($response['Status']['Code'] !== 0) {
+                throw new Exception('Code: '.$response['Status']['Code'].'. '.$response['Status']['Message']);
+            }
+            switch($commandType) {
                 case 'COUNT':
-                    return $response['Paging']['TotalResultCount'];
+                    return ArrayHelper::getValue($response, $this->count_path);
                 case 'ALL':
-                    $source = explode('/', $source);
-                    return $response[$source[count($source) - 1]];
+                    return $response[$entity];
                 case 'ONE':
-                    return $response[$source][0];
+                    return $response[$entity][0];
+                case 'SAVE':
+                    return $response;
             }
         } else {
             throw new Exception('Request Error with the following url: '. $url);
         }
-
     }
 }

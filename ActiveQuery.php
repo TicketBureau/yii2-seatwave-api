@@ -60,7 +60,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        return $db->executeCommand('ALL', $this->getSource(), $this->prepareQueryString());
+        return $db->executeCommand('ALL', $modelClass::tableName(), $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -81,7 +81,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        return $db->executeCommand('ONE', $this->getSource(), $this->prepareQueryString());
+        return $db->executeCommand('ONE', $modelClass::tableName(), $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -102,7 +102,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
         }
         $this->limit = 1;
 
-        return $db->executeCommand('COUNT', $this->getSource(), $this->prepareQueryString());
+        return $db->executeCommand('COUNT', $modelClass::tableName(), $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -140,7 +140,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $source = $pre . '/' . $source;
         }
 
-        return $source;
+        return 'discovery/'.$source;
     }
 
     /**
@@ -155,14 +155,14 @@ class ActiveQuery extends Component implements ActiveQueryInterface
 
         $base_params = [];
         if (!empty($this->limit)) {
-            $base_params['pgsize'] = $this->limit;
+            $base_params['GET']['pgsize'] = $this->limit;
         }
 
         if (!empty($this->offset)) {
-            $base_params['pgnumber'] = $this->offset + 1;
+            $base_params['GET']['pgnumber'] = $this->offset + 1;
         }
 
-        return array_merge(
+        return array_merge_recursive(
             $modelClass::additionalParams(),
             $base_params
         );

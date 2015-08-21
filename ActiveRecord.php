@@ -45,11 +45,48 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns the list of all attribute names of the model.
      * This method must be overridden by child classes to define available attributes.
+     *
+     * @throws InvalidConfigException
+     *
      * @return array list of attribute names.
      */
     public function attributes()
     {
-        throw new InvalidConfigException('The attributes() method of redis ActiveRecord has to be implemented by child classes.');
+        throw new InvalidConfigException('The attributes() method of the ActiveRecord has to be implemented by child classes.');
+    }
+
+    /**
+     * Returns the entity which is related the model to.
+     * @throws InvalidConfigException
+     *
+     * @returns string
+     */
+    public static function tableName()
+    {
+        throw new InvalidConfigException('The tableName() method of the ActiveRecord has to be implemented by child classes.');
+    }
+
+    /**
+     * @throws InvalidConfigException
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        throw new InvalidConfigException('The getSource() method of the ActiveRecord has to be implemented by child classes if you need to save data.');
+    }
+
+    /**
+     * Returns the list of all post attributes names of the model.
+     * This method must be overridden by child classes to define available attributes.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return array list of attribute names.
+     */
+    public static function postAttributes()
+    {
+        throw new InvalidConfigException('The postAttributes() method of the ActiveRecord has to be implemented by child classes if you need to define post attributes.');
     }
 
     /**
@@ -57,7 +94,8 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function insert($runValidation = true, $attributes = null)
     {
-        throw new InvalidConfigException('Method not implemented.');
+        $db = ActiveRecord::getDb();
+        return $db->executeCommand('SAVE', $this->tableName(), $this->getSource(), $this->prepareQueryString(), 'https://');
     }
 
     /**
@@ -66,6 +104,22 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function additionalParams()
     {
-        return [];
+        return ['GET' => [], 'POST' => []];
+    }
+
+    public function prepareQueryString() {
+        /* @var $modelClass ActiveRecord */
+        $modelClass = get_class($this);
+
+        $attributes = [];
+        foreach($this->getAttributes() as $key => $value) {
+            $method = 'GET';
+            if(in_array($key, $modelClass::postAttributes())) {
+                $method = 'POST';
+            }
+            $attributes[$method][$key] = $this->$key;
+        }
+
+        return array_merge_recursive($attributes, $modelClass::additionalParams());
     }
 }
