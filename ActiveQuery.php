@@ -162,6 +162,8 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $base_params['GET']['pgnumber'] = $this->offset + 1;
         }
 
+        $base_params['GET'] = array_merge($base_params['GET'], $this->where);
+
         return array_merge_recursive(
             $modelClass::additionalParams(),
             $base_params

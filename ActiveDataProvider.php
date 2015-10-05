@@ -21,9 +21,6 @@ class ActiveDataProvider extends \yii\data\ActiveDataProvider
             $pagination->totalCount = $this->getTotalCount();
             $query->limit($pagination->getLimit())->offset($pagination->getPage());
         }
-        if (($sort = $this->getSort()) !== false) {
-            $query->addOrderBy($sort->getOrders());
-        }
 
         return $query->all($this->db);
     }

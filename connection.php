@@ -33,12 +33,12 @@ class Connection extends Component {
         $curl = new curl\Curl();
         $url = $protocol.$this->endpoint.strtolower($source);
 
-        Yii::trace('Url set to:' . $url, __METHOD__);
+        Yii::trace('Url set to:' . $url);
 
         $queryString = [];
         foreach($params['GET'] as $key => $param) {
             if(!empty($param)) {
-                $queryString[] = "$key=$param";
+                $queryString[] = "$key=".urlencode($param);
             }
         }
         $queryString = implode('&', $queryString);
