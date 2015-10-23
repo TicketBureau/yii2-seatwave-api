@@ -153,7 +153,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
         /* @var $modelClass ActiveRecord */
         $modelClass = $this->modelClass;
 
-        $base_params = [];
+        $base_params = ['GET' => []];
         if (!empty($this->limit)) {
             $base_params['GET']['pgsize'] = $this->limit;
         }
@@ -162,9 +162,11 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $base_params['GET']['pgnumber'] = $this->offset + 1;
         }
 
-        $base_params['GET'] = array_merge($base_params['GET'], $this->where);
+        if(!empty($this->where)){
+            $base_params['GET'] = array_merge($base_params['GET'], $this->where);
+        }
 
-        return array_merge_recursive(
+        return array_replace_recursive(
             $modelClass::additionalParams(),
             $base_params
         );
