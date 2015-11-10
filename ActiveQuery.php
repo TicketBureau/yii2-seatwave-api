@@ -2,11 +2,13 @@
 
 namespace ticketbureau\seatwave;
 
+use Yii;
 use yii\base\Component;
 use yii\db\ActiveQueryInterface;
 use yii\db\ActiveQueryTrait;
 use yii\db\ActiveRelationTrait;
 use yii\db\QueryTrait;
+use yii\helpers\BaseInflector;
 
 class ActiveQuery extends Component implements ActiveQueryInterface
 {
@@ -81,7 +83,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $db = $modelClass::getDb();
         }
 
-        return $db->executeCommand('ONE', $modelClass::tableName(), $this->getSource(), $this->prepareQueryString());
+        return $db->executeCommand('ONE', BaseInflector::singularize($modelClass::tableName()), $this->getSource(), $this->prepareQueryString());
     }
 
     /**
@@ -132,12 +134,17 @@ class ActiveQuery extends Component implements ActiveQueryInterface
         $modelClass = $this->modelClass;
         $source = $modelClass::tableName();
 
-        if (!empty($this->link)) {
-            $pre = '';
-            foreach ($this->link as $key => $link) {
-                $pre .= "{$key}/{$link}";
+        if(!empty($this->where['id'])) {
+            $source = BaseInflector::singularize($source) . '/' . $this->where['id'];
+            unset($this->where['id']);
+        } else {
+            if (!empty($this->link)) {
+                $pre = '';
+                foreach ($this->link as $key => $link) {
+                    $pre .= "{$key}/{$link}";
+                }
+                $source = $pre . '/' . $source;
             }
-            $source = $pre . '/' . $source;
         }
 
         return 'discovery/'.$source;
@@ -166,6 +173,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface
             $base_params['GET'] = array_merge($base_params['GET'], $this->where);
         }
 
+        Yii::trace($base_params);
         return array_replace_recursive(
             $modelClass::additionalParams(),
             $base_params

@@ -33,8 +33,6 @@ class Connection extends Component {
         $curl = new curl\Curl();
         $url = $protocol.$this->endpoint.strtolower($source);
 
-        Yii::trace('Url set to:' . $url);
-
         $queryString = [];
         foreach($params['GET'] as $key => $param) {
             if(!empty($param)) {
@@ -44,10 +42,12 @@ class Connection extends Component {
         $queryString = implode('&', $queryString);
         $url .= '?'.$queryString;
 
+        Yii::trace($url, __METHOD__);
+
         if(!empty($params['POST'])) {
             $raw_response = $curl->setOption(
                 CURLOPT_POSTFIELDS,
-                http_build_query($params['POST']))
+                json_encode(array_filter($params['POST'])))
                 ->post($url);
         } else {
             $raw_response = $curl->get($url);
@@ -65,7 +65,7 @@ class Connection extends Component {
                 case 'ALL':
                     return $response[$entity];
                 case 'ONE':
-                    return $response[$entity][0];
+                    return $response[$entity];
                 case 'SAVE':
                     return $response;
             }
