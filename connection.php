@@ -22,6 +22,8 @@ class Connection extends Component {
 
     protected $_curl = null;
 
+    /** @var  string Api Key for calling Seatwave api */
+    public $apiKey;
 
 
     public function executeCommand($commandType,$entity, $source, $params = [], $protocol = 'http://'){
@@ -33,7 +35,7 @@ class Connection extends Component {
         $curl = new curl\Curl();
         $url = $protocol.$this->endpoint.strtolower($source);
 
-        $queryString = [];
+        $queryString = ['apiKey=' . $this->apiKey];
         foreach($params['GET'] as $key => $param) {
             if(!empty($param)) {
                 $queryString[] = "$key=".urlencode($param);
